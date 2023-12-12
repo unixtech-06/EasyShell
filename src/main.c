@@ -50,19 +50,19 @@
 void
 change_directory(const char *path)
 {
-    if (path == NULL) {
-        // Change to the home directory
-        const struct passwd *pw = getpwuid(getuid());
-        const char *homedir = pw->pw_dir;
-        if (chdir(homedir) != 0) {
-            perror("chdir");
-        }
-    } else {
-        // Change to the specified directory
-        if (chdir(path) != 0) {
-            perror("chdir");
-        }
-    }
+	if (path == NULL) {
+		// Change to the home directory
+		const struct passwd *pw = getpwuid(getuid());
+		const char *homedir = pw->pw_dir;
+		if (chdir(homedir) != 0) {
+			perror("chdir");
+		}
+	} else {
+		// Change to the specified directory
+		if (chdir(path) != 0) {
+			perror("chdir");
+		}
+	}
 }
 
 /**
@@ -73,41 +73,41 @@ change_directory(const char *path)
 void
 execute_command(char *cmd)
 {
-    char *argv[MAX_ARGS];
-    int argc = 0;
+	char *argv[MAX_ARGS];
+	int argc = 0;
 
-    // Split the command into tokens to create an argument array
-    char *token = strtok(cmd, DELIMITERS);
-    while (token != NULL) {
-        argv[argc++] = token;
-        token = strtok(NULL, DELIMITERS);
-    }
-    argv[argc] = NULL; // Terminate the argument array with NULL
+	// Split the command into tokens to create an argument array
+	char *token = strtok(cmd, DELIMITERS);
+	while (token != NULL) {
+		argv[argc++] = token;
+		token = strtok(NULL, DELIMITERS);
+	}
+	argv[argc] = NULL; // Terminate the argument array with NULL
 
-    // Handle built-in commands
-    if (argc > 0) {
-        if (strcmp(argv[0], "cd") == 0) {
-            change_directory(argc > 1 ? argv[1] : NULL);
-            return;
-        }
-    }
+	// Handle built-in commands
+	if (argc > 0) {
+		if (strcmp(argv[0], "cd") == 0) {
+			change_directory(argc > 1 ? argv[1] : NULL);
+			return;
+		}
+	}
 
-    // Create a child process to execute the command
-    const pid_t pid = fork();
-    if (pid == 0) {
-        // Child process
-        execvp(argv[0], argv);
-        // If execvp fails
-        perror("execvp");
-        exit(EXIT_FAILURE);
-    } else if (pid > 0) {
-        // Parent process
-        wait(NULL); // Wait for the child process to finish
-    } else {
-        // Fork failed
-        perror("fork");
-        exit(EXIT_FAILURE);
-    }
+	// Create a child process to execute the command
+	const pid_t pid = fork();
+	if (pid == 0) {
+		// Child process
+		execvp(argv[0], argv);
+		// If execvp fails
+		perror("execvp");
+		exit(EXIT_FAILURE);
+	} else if (pid > 0) {
+		// Parent process
+		wait(NULL); // Wait for the child process to finish
+	} else {
+		// Fork failed
+		perror("fork");
+		exit(EXIT_FAILURE);
+	}
 }
 
 /**
@@ -118,18 +118,18 @@ int
 main()
 {
 
-    while (1) {char cmd[MAX_CMD_LEN];
-        printf("simple-shell> "); // Display the prompt
-        if (fgets(cmd, sizeof(cmd), stdin) == NULL) {
-            break; // Exit the loop if input has ended
-        }
+	while (1) {char cmd[MAX_CMD_LEN];
+		printf("simple-shell> "); // Display the prompt
+		if (fgets(cmd, sizeof(cmd), stdin) == NULL) {
+			break; // Exit the loop if input has ended
+		}
 
-        if (cmd[0] == '\n') {
-            continue; // Ignore empty lines
-        }
+		if (cmd[0] == '\n') {
+			continue; // Ignore empty lines
+		}
 
-        execute_command(cmd);
-    }
+		execute_command(cmd);
+	}
 
-    return 0;
+	return 0;
 }
