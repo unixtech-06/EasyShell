@@ -37,28 +37,60 @@
 #include <string.h>
 #include <unistd.h>
 #include <pwd.h>
+#include <dirent.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 #define MAX_CMD_LEN 1024
 #define MAX_ARGS 64
 #define DELIMITERS " \t\r\n"
 
 /**
- * Changes the current working directory.
- *
- * @param path The path to change to. If NULL, changes to the home directory.
+ * Custom completer for files and directories.
  */
-void
-change_directory(const char *path)
-{
+char *file_directory_completer(const char *text, int state) {
+    static DIR *dir = NULL;
+    static int len;
+    struct dirent *entry;
+
+    if (!state) {
+        if (dir) {
+            closedir(dir);
+        }
+        dir = opendir("."); // Open the current directory
+        len = strlen(text);
+    }
+
+    while ((entry = readdir(dir)) != NULL) {
+        if (strncmp(entry->d_name, text, len) == 0) {
+            return strdup(entry->d_name);
+        }
+    }
+
+    closedir(dir);
+    dir = NULL;
+    return NULL;
+}
+
+/**
+ * Custom tab completion logic.
+ */
+char **shell_completion(const char *text, int start, int end) {
+    rl_attempted_completion_over = 1; // Tell readline to use our function
+    return rl_completion_matches(text, file_directory_completer);
+}
+
+/**
+ * Changes the current working directory.
+ */
+void change_directory(const char *path) {
     if (path == NULL) {
-        // Change to the home directory
         const struct passwd *pw = getpwuid(getuid());
         const char *homedir = pw->pw_dir;
         if (chdir(homedir) != 0) {
             perror("chdir");
         }
     } else {
-        // Change to the specified directory
         if (chdir(path) != 0) {
             perror("chdir");
         }
@@ -66,25 +98,19 @@ change_directory(const char *path)
 }
 
 /**
- * Executes a command by creating a child process or handling built-in commands.
- *
- * @param cmd The command to be executed.
+ * Executes a command.
  */
-void
-execute_command(char *cmd)
-{
+void execute_command(char *cmd) {
     char *argv[MAX_ARGS];
     int argc = 0;
 
-    // Split the command into tokens to create an argument array
     char *token = strtok(cmd, DELIMITERS);
     while (token != NULL) {
         argv[argc++] = token;
         token = strtok(NULL, DELIMITERS);
     }
-    argv[argc] = NULL; // Terminate the argument array with NULL
+    argv[argc] = NULL;
 
-    // Handle built-in commands
     if (argc > 0) {
         if (strcmp(argv[0], "cd") == 0) {
             change_directory(argc > 1 ? argv[1] : NULL);
@@ -92,19 +118,14 @@ execute_command(char *cmd)
         }
     }
 
-    // Create a child process to execute the command
-    const pid_t pid = fork();
+    pid_t pid = fork();
     if (pid == 0) {
-        // Child process
         execvp(argv[0], argv);
-        // If execvp fails
         perror("execvp");
         exit(EXIT_FAILURE);
     } else if (pid > 0) {
-        // Parent process
-        wait(NULL); // Wait for the child process to finish
+        wait(NULL);
     } else {
-        // Fork failed
         perror("fork");
         exit(EXIT_FAILURE);
     }
@@ -112,24 +133,28 @@ execute_command(char *cmd)
 
 /**
  * Main function of the simple shell.
- * It continuously prompts the user to enter commands and executes them.
  */
-int
-main()
-{
+int main() {
+    char *cmd;
+    rl_attempted_completion_function = shell_completion;
 
-    while (1) {char cmd[MAX_CMD_LEN];
-        printf("simple-shell> "); // Display the prompt
-        if (fgets(cmd, sizeof(cmd), stdin) == NULL) {
-            break; // Exit the loop if input has ended
+    while (1) {
+        cmd = readline("simple-shell> ");
+        if (!cmd) break;
+
+        if (strcmp(cmd, "clear") == 0 || strcmp(cmd, "ctrl+l") == 0) {
+            system("clear");
+            continue;
         }
 
-        if (cmd[0] == '\n') {
-            continue; // Ignore empty lines
+        if (*cmd) {
+            add_history(cmd);
+            execute_command(cmd);
         }
 
-        execute_command(cmd);
+        free(cmd);
     }
 
     return 0;
 }
+
