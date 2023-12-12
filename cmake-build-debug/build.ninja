@@ -65,6 +65,7 @@ build CMakeFiles/EasyShell.dir/src/main.c.o: C_COMPILER__EasyShell_unscanned_Deb
 
 build EasyShell: C_EXECUTABLE_LINKER__EasyShell_Debug CMakeFiles/EasyShell.dir/src/main.c.o
   FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk
+  LINK_LIBRARIES = -lreadline
   OBJECT_DIR = CMakeFiles/EasyShell.dir
   POST_BUILD = :
   PRE_LINK = :

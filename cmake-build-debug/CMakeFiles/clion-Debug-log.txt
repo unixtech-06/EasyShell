@@ -1,13 +1,4 @@
-"/Users/ryosuke/Applications/CLion Nova.app/Contents/bin/cmake/mac/aarch64/bin/cmake" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=/Users/ryosuke/Applications/CLion Nova.app/Contents/bin/ninja/mac/aarch64/ninja" -G Ninja -S /Users/ryosuke/CLionProjects/EasyShell -B /Users/ryosuke/CLionProjects/EasyShell
-CMake Error: The current CMakeCache.txt directory /Users/ryosuke/CLionProjects/EasyShell/CMakeCache.txt is different than the directory /Users/ryosuke/CLionProjects/EasyShell/cmake-build-debug where CMakeCache.txt was created. This may result in binaries being created in the wrong place. If you are not sure, reedit the CMakeCache.txt
--- Found PkgConfig: /opt/homebrew/bin/pkg-config (found version "0.29.2") 
--- Checking for module 'readline'
---   No package 'readline' found
-CMake Error at /Users/ryosuke/Applications/CLion Nova.app/Contents/bin/cmake/mac/aarch64/share/cmake-3.27/Modules/FindPkgConfig.cmake:607 (message):
-  A required package was not found
-Call Stack (most recent call first):
-  /Users/ryosuke/Applications/CLion Nova.app/Contents/bin/cmake/mac/aarch64/share/cmake-3.27/Modules/FindPkgConfig.cmake:829 (_pkg_check_modules_internal)
-  CMakeLists.txt:14 (pkg_check_modules)
-
-
--- Configuring incomplete, errors occurred!
+"/Users/ryosuke/Applications/CLion Nova.app/Contents/bin/cmake/mac/aarch64/bin/cmake" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=/Users/ryosuke/Applications/CLion Nova.app/Contents/bin/ninja/mac/aarch64/ninja" -G Ninja -S /Users/ryosuke/CLionProjects/EasyShell -B /Users/ryosuke/CLionProjects/EasyShell/cmake-build-debug
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/ryosuke/CLionProjects/EasyShell/cmake-build-debug
