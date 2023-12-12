@@ -1,0 +1,24 @@
+# Empty C/C++ Code Style settings
+Language: C
+BasedOnStyle: LLVM
+IndentWidth: 8
+TabWidth: 8
+UseTab: Always
+BreakBeforeBraces: Custom
+BraceWrapping:
+        AfterFunction: true
+        AfterStruct: true
+        AfterUnion: true
+        AfterEnum: true
+        AfterClass: true
+        AfterControlStatement: true
+        AfterNamespace: false
+        BeforeCatch: true
+        BeforeElse: true
+        IndentBraces: false
+PointerAlignment: Left
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+IndentCaseLabels: true
+SpaceBeforeParens: ControlStatements
