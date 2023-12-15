@@ -1,4 +1,4 @@
-"/Users/ryosuke/Applications/CLion Nova.app/Contents/bin/cmake/mac/aarch64/bin/cmake" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=/Users/ryosuke/Applications/CLion Nova.app/Contents/bin/ninja/mac/aarch64/ninja" -G Ninja -S /Users/ryosuke/CLionProjects/EasyShell -B /Users/ryosuke/CLionProjects/EasyShell/cmake-build-debug
--- Configuring done (0.0s)
--- Generating done (0.0s)
--- Build files have been written to: /Users/ryosuke/CLionProjects/EasyShell/cmake-build-debug
+/Users/ryosuke/CLionProjects/EasyShell に生成できません
+互換性のないジェネレーター 'Unix Makefiles' で作成されました'
+
+手動で削除するか別の生成ディレクトリを選択してください

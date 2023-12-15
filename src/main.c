@@ -30,8 +30,9 @@
  * File: main.c
  */
 
-#include <sys/types.h>
+#include <sys/types.h>  /* Non-local includes in brackets. */
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -45,29 +46,58 @@
 #define MAX_ARGS 64
 #define DELIMITERS " \t\r\n"
 
-/**
- * Custom completer for files and directories.
- */
-char
-*file_directory_completer(const char *text, int state)
+	char **
+get_commands_from_path(const char *text, int *list_size)
 {
+	char *path = getenv("PATH");
+	char *path_copy = strdup(path);
+	char *dir_path;
+	char **command_list = NULL;
+	int count = 0;
 
+	dir_path = strtok(path_copy, ":");
+	while (dir_path != NULL) {
+		DIR *dir = opendir(dir_path);
+		if (dir != NULL) {
+			struct dirent *entry;
+			while ((entry = readdir(dir)) != NULL) {
+				struct stat st;
+				char full_path[1024];
+				snprintf(full_path, sizeof(full_path), "%s/%s", dir_path, entry->d_name);
+				if (stat(full_path, &st) == 0 && (st.st_mode & S_IXUSR)) {
+					if (strncmp(entry->d_name, text, strlen(text)) == 0) {
+						command_list = realloc(command_list, sizeof(char *) * (count + 1));
+						command_list[count++] = strdup(entry->d_name);
+					}
+				}
+			}
+			closedir(dir);
+		}
+		dir_path = strtok(NULL, ":");
+	}
+	free(path_copy);
+	*list_size = count;
+	return command_list;
+}
+
+/* Custom completer for files and directories. */
+	char *
+file_directory_completer(const char *text, int state)
+{
 	static DIR *dir = NULL;
 	static int len;
 	struct dirent *entry;
 
 	if (!state) {
-		if (dir) {
+		if (dir)
 			closedir(dir);
-		}
-		dir = opendir("."); // Open the current directory
+		dir = opendir("."); /* Open the current directory */
 		len = strlen(text);
 	}
 
 	while ((entry = readdir(dir)) != NULL) {
-		if (strncmp(entry->d_name, text, len) == 0) {
+		if (strncmp(entry->d_name, text, len) == 0)
 			return strdup(entry->d_name);
-		}
 	}
 
 	closedir(dir);
@@ -75,39 +105,40 @@ char
 	return NULL;
 }
 
-/**
- * Custom tab completion logic.
- */
-char
-**shell_completion(const char *text, int start, int end)
+/* Custom tab completion logic. */
+	char **
+shell_completion(const char *text, int start, int end)
 {
-	rl_attempted_completion_over = 1; // Tell readline to use our function
+	rl_attempted_completion_over = 1;
+
+	if (start == 0) {
+		int list_size = 0;
+		char **commands = get_commands_from_path(text, &list_size);
+		if (list_size > 0) {
+			return commands;
+		}
+	}
+
 	return rl_completion_matches(text, file_directory_completer);
 }
 
-/**
- * Changes the current working directory.
- */
-void
+/* Changes the current working directory. */
+	void
 change_directory(const char *path)
 {
 	if (path == NULL) {
 		const struct passwd *pw = getpwuid(getuid());
 		const char *homedir = pw->pw_dir;
-		if (chdir(homedir) != 0) {
+		if (chdir(homedir) != 0)
 			perror("chdir");
-		}
 	} else {
-		if (chdir(path) != 0) {
+		if (chdir(path) != 0)
 			perror("chdir");
-		}
 	}
 }
 
-/**
- * Executes a command.
- */
-void
+/* Executes a command. */
+	void
 execute_command(char *cmd)
 {
 	char *argv[MAX_ARGS];
@@ -140,17 +171,17 @@ execute_command(char *cmd)
 	}
 }
 
-/**
- * Main function of the simple shell.
- */
-int
-main()
+/* Main function of the simple shell. */
+	int
+main(void)
 {
+
 	rl_attempted_completion_function = shell_completion;
 
 	while (1) {
 		char *cmd = readline("simple-shell> ");
-		if (!cmd) break;
+		if (!cmd)
+			break;
 
 		if (strcmp(cmd, "clear") == 0 || strcmp(cmd, "ctrl+l") == 0) {
 			system("clear");
@@ -167,4 +198,3 @@ main()
 
 	return 0;
 }
-
