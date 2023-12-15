@@ -60,43 +60,43 @@
  *   that starts with the provided text. The size of the array is stored in list_size.
  *   If no commands are found, returns NULL.
  */
-char **
+	char **
 get_commands_from_path(const char *text, int *list_size)
 {
-    /* Duplicate the PATH environment variable to avoid modifying the original. */
-    char *path = getenv("PATH");
-    char *path_copy = strdup(path);
-    char *dir_path;
-    char **command_list = NULL;
-    int count = 0;
+	/* Duplicate the PATH environment variable to avoid modifying the original. */
+	char *path = getenv("PATH");
+	char *path_copy = strdup(path);
+	char *dir_path;
+	char **command_list = NULL;
+	int count = 0;
 
-    /* Tokenize the PATH string to iterate over each directory. */
-    dir_path = strtok(path_copy, ":");
-    while (dir_path != NULL) {
-        DIR *dir = opendir(dir_path);
-        if (dir != NULL) {
-            struct dirent *entry;
-            while ((entry = readdir(dir)) != NULL) {
-                struct stat st;
-                char full_path[1024];
+	/* Tokenize the PATH string to iterate over each directory. */
+	dir_path = strtok(path_copy, ":");
+	while (dir_path != NULL) {
+		DIR *dir = opendir(dir_path);
+		if (dir != NULL) {
+			struct dirent *entry;
+			while ((entry = readdir(dir)) != NULL) {
+				struct stat st;
+				char full_path[1024];
 
-                /* Construct the full path of the file and check if it's executable. */
-                snprintf(full_path, sizeof(full_path), "%s/%s", dir_path, entry->d_name);
-                if (stat(full_path, &st) == 0 && (st.st_mode & S_IXUSR)) {
-                    /* If the file name matches the provided text, add it to the list. */
-                    if (strncmp(entry->d_name, text, strlen(text)) == 0) {
-                        command_list = realloc(command_list, sizeof(char *) * (count + 1));
-                        command_list[count++] = strdup(entry->d_name);
-                    }
-                }
-            }
-            closedir(dir);
-        }
-        dir_path = strtok(NULL, ":");
-    }
-    free(path_copy);
-    *list_size = count;
-    return command_list;
+				/* Construct the full path of the file and check if it's executable. */
+				snprintf(full_path, sizeof(full_path), "%s/%s", dir_path, entry->d_name);
+				if (stat(full_path, &st) == 0 && (st.st_mode & S_IXUSR)) {
+					/* If the file name matches the provided text, add it to the list. */
+					if (strncmp(entry->d_name, text, strlen(text)) == 0) {
+						command_list = realloc(command_list, sizeof(char *) * (count + 1));
+						command_list[count++] = strdup(entry->d_name);
+					}
+				}
+			}
+			closedir(dir);
+		}
+		dir_path = strtok(NULL, ":");
+	}
+	free(path_copy);
+	*list_size = count;
+	return command_list;
 }
 
 /* Custom completer for files and directories. */
