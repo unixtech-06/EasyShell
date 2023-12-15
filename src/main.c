@@ -64,14 +64,13 @@
 get_commands_from_path(const char *text, int *list_size)
 {
 	/* Duplicate the PATH environment variable to avoid modifying the original. */
-	char *path = getenv("PATH");
+	const char *path = getenv("PATH");
 	char *path_copy = strdup(path);
-	char *dir_path;
 	char **command_list = NULL;
 	int count = 0;
 
 	/* Tokenize the PATH string to iterate over each directory. */
-	dir_path = strtok(path_copy, ":");
+	char *dir_path = strtok(path_copy, ":");
 	while (dir_path != NULL) {
 		DIR *dir = opendir(dir_path);
 		if (dir != NULL) {
