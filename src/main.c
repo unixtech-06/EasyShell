@@ -41,6 +41,7 @@
 #include <dirent.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <err.h>
 
 #define MAX_CMD_LEN 1024
 #define MAX_ARGS 64
@@ -141,23 +142,23 @@ shell_completion(const char *text, int start, int end)
 }
 
 /* Changes the current working directory. */
-	void
-change_directory(const char *path)
+	void 
+change_directory(const char *path) 
 {
 	if (path == NULL) {
 		const struct passwd *pw = getpwuid(getuid());
 		const char *homedir = pw->pw_dir;
 		if (chdir(homedir) != 0)
-			perror("chdir");
+			err(1, "chdir failed to home directory");
 	} else {
 		if (chdir(path) != 0)
-			perror("chdir");
+			warn("chdir failed to %s", path);
 	}
 }
 
 /* Executes a command. */
 	void
-execute_command(char *cmd)
+execute_command(char *cmd) 
 {
 	char *argv[MAX_ARGS];
 	int argc = 0;
@@ -179,13 +180,12 @@ execute_command(char *cmd)
 	const pid_t pid = fork();
 	if (pid == 0) {
 		execvp(argv[0], argv);
-		perror("execvp");
-		exit(EXIT_FAILURE);
+		err(1, "execvp failed on command %s", argv[0]);
 	} else if (pid > 0) {
-		wait(NULL);
+		if (wait(NULL) == -1)
+			warn("wait failed");
 	} else {
-		perror("fork");
-		exit(EXIT_FAILURE);
+		err(1, "fork failed");
 	}
 }
 
